@@ -1,0 +1,1 @@
+int ramspeed_entry();

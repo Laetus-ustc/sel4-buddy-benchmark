@@ -1,0 +1,1 @@
+int ramspeed(int argc, char *argv[]);
