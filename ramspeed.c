@@ -35,6 +35,12 @@ extern UTL floatsc(UTL maxblk, UTL passnum);
 extern UTL floatad(UTL maxblk, UTL passnum);
 extern UTL floattr(UTL maxblk, UTL passnum);
 
+unsigned long my_cycle() {
+		unsigned long n;
+		asm volatile("rdcycle %0" : "=r"(n));
+		return n;
+}
+
 #if (I386_ASM) || (AMD64_ASM)
 
 #if (I386_ASM)
@@ -314,7 +320,7 @@ int ramspeed(int argc, char *argv[]) {
 	    for(blksize = STARTBLK; blksize <= maxblk; blksize = (blksize << 1)) {
 		passnum = (passize << 20)/blksize;
 		time = intwr(blksize, passnum);
-		printf("INTEGER & WRITING  %8lu Kb block: %.2f M%c/s\n",
+		printf("INTEGER & WRITING  %8lu Kb block: %.6f %c/cycle\n",
 		  blksize, (F64)(passize << 10)*mb/(F64)time, bch);
 	    }
 	    break;
@@ -323,7 +329,7 @@ int ramspeed(int argc, char *argv[]) {
 	    for(blksize = STARTBLK; blksize <= maxblk; blksize = (blksize << 1)) {
 		passnum = (passize << 20)/blksize;
 		time = intrd(blksize, passnum);
-		printf("INTEGER & READING  %8lu Kb block: %.2f M%c/s\n",
+		printf("INTEGER & READING  %8lu Kb block: %.6f %c/cycle\n",
 		  blksize, (F64)(passize << 10)*mb/(F64)time, bch);
 	    }
 	    break;
@@ -334,32 +340,32 @@ int ramspeed(int argc, char *argv[]) {
 		if(bnum > 1) printf("Benchmark #%u:\n", bmark+1);
 		time = intcp(maxblk, passnum);
 		cp = (F64)(passize << 11)*mb/(F64)time;
-		printf("INTEGER   Copy:      %.2f M%c/s\n", cp, bch);
+		printf("INTEGER   Copy:      %.6f %c/cycle\n", cp, bch);
 		time = intsc(maxblk, passnum);
 		sc = (F64)(passize << 11)*mb/(F64)time;
-		printf("INTEGER   Scale:     %.2f M%c/s\n", sc, bch);
+		printf("INTEGER   Scale:     %.6f %c/cycle\n", sc, bch);
 		time = intad(maxblk, passnum);
 		ad = (F64)(passize*3072)*mb/(F64)time;
-		printf("INTEGER   Add:       %.2f M%c/s\n", ad, bch);
+		printf("INTEGER   Add:       %.6f %c/cycle\n", ad, bch);
 		time = inttr(maxblk, passnum);
 		tr = (F64)(passize*3072)*mb/(F64)time;
-		printf("INTEGER   Triad:     %.2f M%c/s\n", tr, bch);
-		printf("---\nINTEGER   AVERAGE:   %.2f M%c/s\n\n",
+		printf("INTEGER   Triad:     %.6f %c/cycle\n", tr, bch);
+		printf("---\nINTEGER   AVERAGE:   %.6f %c/cycle\n\n",
 		  (cp + sc + ad + tr)/4.0, bch);
 		if(bnum > 1) {
 		    cplr += cp; sclr += sc; adlr += ad; trlr += tr;
 		}
 	    }
 	    if(bnum > 1) {
-		printf("INTEGER BatchRun   Copy:      %.2f M%c/s\n",
+		printf("INTEGER BatchRun   Copy:      %.6f %c/cycle\n",
 		  cplr/(F64)bnum, bch);
-		printf("INTEGER BatchRun   Scale:     %.2f M%c/s\n",
+		printf("INTEGER BatchRun   Scale:     %.6f %c/cycle\n",
 		  sclr/(F64)bnum, bch);
-		printf("INTEGER BatchRun   Add:       %.2f M%c/s\n",
+		printf("INTEGER BatchRun   Add:       %.6f %c/cycle\n",
 		  adlr/(F64)bnum, bch);
-		printf("INTEGER BatchRun   Triad:     %.2f M%c/s\n",
+		printf("INTEGER BatchRun   Triad:     %.6f %c/cycle\n",
 		  trlr/(F64)bnum, bch);
-		printf("---\nINTEGER BatchRun   AVERAGE:   %.2f M%c/s\n",
+		printf("---\nINTEGER BatchRun   AVERAGE:   %.6f %c/cycle\n",
 		  (cplr + sclr + adlr + trlr)/(F64)(bnum << 2), bch);
 	    }
 	    break;
@@ -368,7 +374,7 @@ int ramspeed(int argc, char *argv[]) {
 	    for(blksize = STARTBLK; blksize <= maxblk; blksize = (blksize << 1)) {
 		passnum = (passize << 20)/blksize;
 		time = floatwr(blksize, passnum);
-		printf("FL-POINT & WRITING %8lu Kb block: %.2f M%c/s\n",
+		printf("FL-POINT & WRITING %8lu Kb block: %.6f %c/cycle\n",
 		  blksize, (F64)(passize << 10)*mb/(F64)time, bch);
 	    }
 	    break;
@@ -377,7 +383,7 @@ int ramspeed(int argc, char *argv[]) {
 	    for(blksize = STARTBLK; blksize <= maxblk; blksize = (blksize << 1)) {
 		passnum = (passize << 20)/blksize;
 		time = floatrd(blksize, passnum);
-		printf("FL-POINT & READING %8lu Kb block: %.2f M%c/s\n",
+		printf("FL-POINT & READING %8lu Kb block: %.6f %c/cycle\n",
 		  blksize, (F64)(passize << 10)*mb/(F64)time, bch);
 	    }
 	    break;
@@ -389,32 +395,32 @@ int ramspeed(int argc, char *argv[]) {
 		if(bnum > 1) printf("Benchmark #%u:\n", bmark+1);
 		time = floatcp(maxblk, passnum);
 		cp = (F64)(passize << 11)*mb/(F64)time;
-		printf("FL-POINT  Copy:      %.2f M%c/s\n", cp, bch);
+		printf("FL-POINT  Copy:      %.6f %c/cycle\n", cp, bch);
 		time = floatsc(maxblk, passnum);
 		sc = (F64)(passize << 11)*mb/(F64)time;
-		printf("FL-POINT  Scale:     %.2f M%c/s\n", sc, bch);
+		printf("FL-POINT  Scale:     %.6f %c/cycle\n", sc, bch);
 		time = floatad(maxblk, passnum);
 		ad = (F64)(passize*3072)*mb/(F64)time;
-		printf("FL-POINT  Add:       %.2f M%c/s\n", ad, bch);
+		printf("FL-POINT  Add:       %.6f %c/cycle\n", ad, bch);
 		time = floattr(maxblk, passnum);
 		tr = (F64)(passize*3072)*mb/(F64)time;
-		printf("FL-POINT  Triad:     %.2f M%c/s\n", tr, bch);
-		printf("---\nFL-POINT  AVERAGE:   %.2f M%c/s\n\n",
+		printf("FL-POINT  Triad:     %.6f %c/cycle\n", tr, bch);
+		printf("---\nFL-POINT  AVERAGE:   %.6f %c/cycle\n\n",
 		  (cp + sc + ad + tr)/4.0, bch);
 		if(bnum > 1) {
 		    cplr += cp; sclr += sc; adlr += ad; trlr += tr;
 		}
 	    }
 	    if(bnum > 1) {
-		printf("FL-POINT BatchRun  Copy:      %.2f M%c/s\n",
+		printf("FL-POINT BatchRun  Copy:      %.6f %c/cycle\n",
 		  cplr/(F64)bnum, bch);
-		printf("FL-POINT BatchRun  Scale:     %.2f M%c/s\n",
+		printf("FL-POINT BatchRun  Scale:     %.6f %c/cycle\n",
 		  sclr/(F64)bnum, bch);
-		printf("FL-POINT BatchRun  Add:       %.2f M%c/s\n",
+		printf("FL-POINT BatchRun  Add:       %.6f %c/cycle\n",
 		  adlr/(F64)bnum, bch);
-		printf("FL-POINT BatchRun  Triad:     %.2f M%c/s\n",
+		printf("FL-POINT BatchRun  Triad:     %.6f %c/cycle\n",
 		  trlr/(F64)bnum, bch);
-		printf("---\nFL-POINT BatchRun  AVERAGE:   %.2f M%c/s\n",
+		printf("---\nFL-POINT BatchRun  AVERAGE:   %.6f %c/cycle\n",
 		  (cplr + sclr + adlr + trlr)/(F64)(bnum << 2), bch);
 	    }
 	    break;
@@ -430,7 +436,7 @@ int ramspeed(int argc, char *argv[]) {
 	    for(blksize = STARTBLK; blksize <= maxblk; blksize = (blksize << 1)) {
 		passnum = (passize << 20)/blksize;
 		time = mmxwr(blksize, passnum);
-		printf("MMX & WRITING      %8lu Kb block: %.2f M%c/s\n",
+		printf("MMX & WRITING      %8lu Kb block: %.6f %c/cycle\n",
 		  blksize, (F64)(passize << 10)*mb/(F64)time, bch);;
 	    }
 	    break;
@@ -445,7 +451,7 @@ int ramspeed(int argc, char *argv[]) {
 	    for(blksize = STARTBLK; blksize <= maxblk; blksize = (blksize << 1)) {
 		passnum = (passize << 20)/blksize;
 		time = mmxrd(blksize, passnum);
-		printf("MMX & READING      %8lu Kb block: %.2f M%c/s\n",
+		printf("MMX & READING      %8lu Kb block: %.6f %c/cycle\n",
 		  blksize, (F64)(passize << 10)*mb/(F64)time, bch);
 	    }
 	    break;
@@ -464,32 +470,32 @@ int ramspeed(int argc, char *argv[]) {
 		time = mmxcp(maxblk, passnum);
 		cp = (F64)(passize << 11)*1000000.0/(F64)time;
 		cp = (F64)(passize << 11)*mb/(F64)time;
-		printf("MMX       Copy:      %.2f M%c/s\n", cp, bch);
+		printf("MMX       Copy:      %.6f %c/cycle\n", cp, bch);
 		time = mmxsc(maxblk, passnum);
 		sc = (F64)(passize << 11)*mb/(F64)time;
-		printf("MMX       Scale:     %.2f M%c/s\n", sc, bch);
+		printf("MMX       Scale:     %.6f %c/cycle\n", sc, bch);
 		time = mmxad(maxblk, passnum);
 		ad = (F64)(passize*3072)*mb/(F64)time;
-		printf("MMX       Add:       %.2f M%c/s\n", ad, bch);
+		printf("MMX       Add:       %.6f %c/cycle\n", ad, bch);
 		time = mmxtr(maxblk, passnum);
 		tr = (F64)(passize*3072)*mb/(F64)time;
-		printf("MMX       Triad:     %.2f M%c/s\n", tr, bch);
-		printf("---\nMMX       AVERAGE:   %.2f M%c/s\n\n",
+		printf("MMX       Triad:     %.6f %c/cycle\n", tr, bch);
+		printf("---\nMMX       AVERAGE:   %.6f %c/cycle\n\n",
 		  (cp + sc + ad + tr)/4.0, bch);
 		if(bnum > 1) {
 		    cplr += cp; sclr += sc; adlr += ad; trlr += tr;
 		}
 	    }
 	    if(bnum > 1) {
-		printf("MMX BatchRun       Copy:      %.2f M%c/s\n",
+		printf("MMX BatchRun       Copy:      %.6f %c/cycle\n",
 		  cplr/(F64)bnum, bch);
-		printf("MMX BatchRun       Scale:     %.2f M%c/s\n",
+		printf("MMX BatchRun       Scale:     %.6f %c/cycle\n",
 		  sclr/(F64)bnum, bch);
-		printf("MMX BatchRun       Add:       %.2f M%c/s\n",
+		printf("MMX BatchRun       Add:       %.6f %c/cycle\n",
 		  adlr/(F64)bnum, bch);
-		printf("MMX BatchRun       Triad:     %.2f M%c/s\n",
+		printf("MMX BatchRun       Triad:     %.6f %c/cycle\n",
 		  trlr/(F64)bnum, bch);
-		printf("---\nMMX BatchRun       AVERAGE:   %.2f M%c/s\n",
+		printf("---\nMMX BatchRun       AVERAGE:   %.6f %c/cycle\n",
 		  (cplr + sclr + adlr + trlr)/(F64)(bnum << 2), bch);
 	    }
 	    break;
@@ -504,7 +510,7 @@ int ramspeed(int argc, char *argv[]) {
 	    for(blksize = STARTBLK; blksize <= maxblk; blksize = (blksize << 1)) {
 		passnum = (passize << 20)/blksize;
 		time = ssewr(blksize, passnum);
-		printf("SSE & WRITING      %8lu Kb block: %.2f M%c/s\n",
+		printf("SSE & WRITING      %8lu Kb block: %.6f %c/cycle\n",
 		  blksize, (F64)(passize << 10)*mb/(F64)time, bch);
 	    }
 	    break;
@@ -519,7 +525,7 @@ int ramspeed(int argc, char *argv[]) {
 	    for(blksize = STARTBLK; blksize <= maxblk; blksize = (blksize << 1)) {
 		passnum = (passize << 20)/blksize;
 		time = sserd(blksize, passnum);
-		printf("SSE & READING      %8lu Kb block: %.2f M%c/s\n",
+		printf("SSE & READING      %8lu Kb block: %.6f %c/cycle\n",
 		  blksize, (F64)(passize << 10)*mb/(F64)time, bch);
 	    }
 	    break;
@@ -537,32 +543,32 @@ int ramspeed(int argc, char *argv[]) {
 		if(bnum > 1) printf("Benchmark #%u:\n", bmark+1);
 		time = ssecp(maxblk, passnum);
 		cp = (F64)(passize << 11)*mb/(F64)time;
-		printf("SSE       Copy:      %.2f M%c/s\n", cp, bch);
+		printf("SSE       Copy:      %.6f %c/cycle\n", cp, bch);
 		time = ssesc(maxblk, passnum);
 		sc = (F64)(passize << 11)*mb/(F64)time;
-		printf("SSE       Scale:     %.2f M%c/s\n", sc, bch);
+		printf("SSE       Scale:     %.6f %c/cycle\n", sc, bch);
 		time = ssead(maxblk, passnum);
 		ad = (F64)(passize*3072)*mb/(F64)time;
-		printf("SSE       Add:       %.2f M%c/s\n", ad, bch);
+		printf("SSE       Add:       %.6f %c/cycle\n", ad, bch);
 		time = ssetr(maxblk, passnum);
 		tr = (F64)(passize*3072)*mb/(F64)time;
-		printf("SSE       Triad:     %.2f M%c/s\n", tr, bch);
-		printf("---\nSSE       AVERAGE:   %.2f M%c/s\n\n",
+		printf("SSE       Triad:     %.6f %c/cycle\n", tr, bch);
+		printf("---\nSSE       AVERAGE:   %.6f %c/cycle\n\n",
 		  (cp + sc + ad + tr)/4.0, bch);
 		if(bnum > 1) {
 		    cplr += cp; sclr += sc; adlr += ad; trlr += tr;
 		}
 	    }
 	    if(bnum > 1) {
-		printf("SSE BatchRun       Copy:      %.2f M%c/s\n",
+		printf("SSE BatchRun       Copy:      %.6f %c/cycle\n",
 		  cplr/(F64)bnum, bch);
-		printf("SSE BatchRun       Scale:     %.2f M%c/s\n",
+		printf("SSE BatchRun       Scale:     %.6f %c/cycle\n",
 		  sclr/(F64)bnum, bch);
-		printf("SSE BatchRun       Add:       %.2f M%c/s\n",
+		printf("SSE BatchRun       Add:       %.6f %c/cycle\n",
 		  adlr/(F64)bnum, bch);
-		printf("SSE BatchRun       Triad:     %.2f M%c/s\n",
+		printf("SSE BatchRun       Triad:     %.6f %c/cycle\n",
 		  trlr/(F64)bnum, bch);
-		printf("---\nSSE BatchRun       AVERAGE:   %.2f M%c/s\n\n",
+		printf("---\nSSE BatchRun       AVERAGE:   %.6f %c/cycle\n\n",
 		  (cplr + sclr + adlr + trlr)/(F64)(bnum << 2), bch);
 	    }
 	    break;
@@ -577,7 +583,7 @@ int ramspeed(int argc, char *argv[]) {
 	    for(blksize = STARTBLK; blksize <= maxblk; blksize = (blksize << 1)) {
 		passnum = (passize << 20)/blksize;
 		time = mmxwr_nt(blksize, passnum);
-		printf("MMX (nt) & WRITING %8lu Kb block: %.2f M%c/s\n",
+		printf("MMX (nt) & WRITING %8lu Kb block: %.6f %c/cycle\n",
 		  blksize, (F64)(passize << 10)*mb/(F64)time, bch);
 	    }
 	    break;
@@ -592,7 +598,7 @@ int ramspeed(int argc, char *argv[]) {
 	    for(blksize = STARTBLK; blksize <= maxblk; blksize = (blksize << 1)) {
 		passnum = (passize << 20)/blksize;
 		time = mmxrd_nt(blksize, passnum);
-		printf("MMX (nt) & READING %8lu Kb block: %.2f M%c/s\n",
+		printf("MMX (nt) & READING %8lu Kb block: %.6f %c/cycle\n",
 		  blksize, (F64)(passize << 10)*mb/(F64)time, bch);
 	    }
 	    break;
@@ -612,55 +618,55 @@ int ramspeed(int argc, char *argv[]) {
 		if(sw_prf == 2) time = mmxcp_nt_t0(maxblk, passnum);
 		else time = mmxcp_nt(maxblk, passnum);
 		cp = (F64)(passize << 11)*mb/(F64)time;
-		printf("MMX (nt)  Copy:      %.2f M%c/s  ", cp, bch);
+		printf("MMX (nt)  Copy:      %.6f %c/cycle  ", cp, bch);
 		if(sw_prf == 2) printf("[T0 prefetch]\n");
 		else printf("[NTA prefetch]\n");
 
 		if(sw_prf == 2) time = mmxsc_nt_t0(maxblk, passnum);
 		else time = mmxsc_nt(maxblk, passnum);
 		sc = (F64)(passize << 11)*mb/(F64)time;
-		printf("MMX (nt)  Scale:     %.2f M%c/s  ", sc, bch);
+		printf("MMX (nt)  Scale:     %.6f %c/cycle  ", sc, bch);
 		if(sw_prf == 2) printf("[T0 prefetch]\n");
 		else printf("[NTA prefetch]\n");
 
 		if(sw_prf == 1) time = mmxad_nt(maxblk, passnum);
 		else time = mmxad_nt_t0(maxblk, passnum);
 		ad = (F64)(passize*3072)*mb/(F64)time;
-		printf("MMX (nt)  Add:       %.2f M%c/s  ", ad, bch);
+		printf("MMX (nt)  Add:       %.6f %c/cycle  ", ad, bch);
 		if(sw_prf == 1) printf("[NTA prefetch]\n");
 		else printf("[T0 prefetch]\n");
 
 		if(sw_prf == 1) time = mmxtr_nt(maxblk, passnum);
 		else time = mmxtr_nt_t0(maxblk, passnum);
 		tr = (F64)(passize*3072)*mb/(F64)time;
-		printf("MMX (nt)  Triad:     %.2f M%c/s  ", tr, bch);
+		printf("MMX (nt)  Triad:     %.6f %c/cycle  ", tr, bch);
 		if(sw_prf == 1) printf("[NTA prefetch]\n");
 		else printf("[T0 prefetch]\n");
 
-		printf("---\nMMX (nt)  AVERAGE:   %.2f M%c/s\n\n",
+		printf("---\nMMX (nt)  AVERAGE:   %.6f %c/cycle\n\n",
 		  (cp + sc + ad + tr)/4.0, bch);
 		if(bnum > 1) {
 		    cplr += cp; sclr += sc; adlr += ad; trlr += tr;
 		}
 	    }
 	    if(bnum > 1) {
-		printf("MMX (nt) BatchRun  Copy:      %.2f M%c/s  ",
+		printf("MMX (nt) BatchRun  Copy:      %.6f %c/cycle  ",
 		  cplr/(F64)bnum, bch);
 		if(sw_prf == 2) printf("[T0 prefetch]\n");
 		else printf("[NTA prefetch]\n");
-		printf("MMX (nt) BatchRun  Scale:     %.2f M%c/s  ",
+		printf("MMX (nt) BatchRun  Scale:     %.6f %c/cycle  ",
 		  sclr/(F64)bnum, bch);
 		if(sw_prf == 2) printf("[T0 prefetch]\n");
 		else printf("[NTA prefetch]\n");
-		printf("MMX (nt) BatchRun  Add:       %.2f M%c/s  ",
+		printf("MMX (nt) BatchRun  Add:       %.6f %c/cycle  ",
 		  adlr/(F64)bnum, bch);
 		if(sw_prf == 1) printf("[NTA prefetch]\n");
 		else printf("[T0 prefetch]\n");
-		printf("MMX (nt) BatchRun  Triad:     %.2f M%c/s  ",
+		printf("MMX (nt) BatchRun  Triad:     %.6f %c/cycle  ",
 		  trlr/(F64)bnum, bch);
 		if(sw_prf == 1) printf("[NTA prefetch]\n");
 		else printf("[T0 prefetch]\n");
-		printf("---\nMMX (nt) BatchRun  AVERAGE:   %.2f M%c/s\n\n",
+		printf("---\nMMX (nt) BatchRun  AVERAGE:   %.6f %c/cycle\n\n",
 		  (cplr + sclr + adlr + trlr)/(F64)(bnum << 2), bch);
 	    }
 	    break;
@@ -675,7 +681,7 @@ int ramspeed(int argc, char *argv[]) {
 	    for(blksize = STARTBLK; blksize <= maxblk; blksize = (blksize << 1)) {
 		passnum = (passize << 20)/blksize;
 		time = ssewr_nt(blksize, passnum);
-		printf("SSE (nt) & WRITING %8lu Kb block: %.2f M%c/s\n",
+		printf("SSE (nt) & WRITING %8lu Kb block: %.6f %c/cycle\n",
 		  blksize, (F64)(passize << 10)*mb/(F64)time, bch);
 	    }
 	    break;
@@ -690,7 +696,7 @@ int ramspeed(int argc, char *argv[]) {
 	    for(blksize = STARTBLK; blksize <= maxblk; blksize = (blksize << 1)) {
 		passnum = (passize << 20)/blksize;
 		time = sserd_nt(blksize, passnum);
-		printf("SSE (nt) & READING %8lu Kb block: %.2f M%c/s\n",
+		printf("SSE (nt) & READING %8lu Kb block: %.6f %c/cycle\n",
 		  blksize, (F64)(passize << 10)*mb/(F64)time, bch);
 	    }
 	    break;
@@ -711,55 +717,55 @@ int ramspeed(int argc, char *argv[]) {
 		else time = ssecp_nt(maxblk, passnum);
 		time = ssecp_nt(maxblk, passnum);
 		cp = (F64)(passize << 11)*mb/(F64)time;
-		printf("SSE (nt)  Copy:      %.2f M%c/s  ", cp, bch);
+		printf("SSE (nt)  Copy:      %.6f %c/cycle  ", cp, bch);
 		if(sw_prf == 2) printf("[T0 prefetch]\n");
 		else printf("[NTA prefetch]\n");
 
 		if(sw_prf == 2) time = ssesc_nt_t0(maxblk, passnum);
 		else time = ssesc_nt(maxblk, passnum);
 		sc = (F64)(passize << 11)*mb/(F64)time;
-		printf("SSE (nt)  Scale:     %.2f M%c/s  ", sc, bch);
+		printf("SSE (nt)  Scale:     %.6f %c/cycle  ", sc, bch);
 		if(sw_prf == 2) printf("[T0 prefetch]\n");
 		else printf("[NTA prefetch]\n");
 
 		if(sw_prf == 1) time = ssead_nt(maxblk, passnum);
 		else time = ssead_nt_t0(maxblk, passnum);
 		ad = (F64)(passize*3072)*mb/(F64)time;
-		printf("SSE (nt)  Add:       %.2f M%c/s  ", ad, bch);
+		printf("SSE (nt)  Add:       %.6f %c/cycle  ", ad, bch);
 		if(sw_prf == 1) printf("[NTA prefetch]\n");
 		else printf("[T0 prefetch]\n");
 
 		if(sw_prf == 1) time = ssetr_nt(maxblk, passnum);
 		else time = ssetr_nt_t0(maxblk, passnum);
 		tr = (F64)(passize*3072)*mb/(F64)time;
-		printf("SSE (nt)  Triad:     %.2f M%c/s  ", tr, bch);
+		printf("SSE (nt)  Triad:     %.6f %c/cycle  ", tr, bch);
 		if(sw_prf == 1) printf("[NTA prefetch]\n");
 		else printf("[T0 prefetch]\n");
 
-		printf("---\nSSE (nt)  AVERAGE:   %.2f M%c/s\n\n",
+		printf("---\nSSE (nt)  AVERAGE:   %.6f %c/cycle\n\n",
 		  (cp + sc + ad + tr)/4.0, bch);
 		if(bnum > 1) {
 		    cplr += cp; sclr += sc; adlr += ad; trlr += tr;
 		}
 	    }
 	    if(bnum > 1) {
-		printf("SSE (nt) BatchRun  Copy:      %.2f M%c/s  ",
+		printf("SSE (nt) BatchRun  Copy:      %.6f %c/cycle  ",
 		  cplr/(F64)bnum, bch);
 		if(sw_prf == 2) printf("[T0 prefetch]\n");
 		else printf("[NTA prefetch]\n");
-		printf("SSE (nt) BatchRun  Scale:     %.2f M%c/s  ",
+		printf("SSE (nt) BatchRun  Scale:     %.6f %c/cycle  ",
 		  sclr/(F64)bnum, bch);
 		if(sw_prf == 2) printf("[T0 prefetch]\n");
 		else printf("[NTA prefetch]\n");
-		printf("SSE (nt) BatchRun  Add:       %.2f M%c/s  ",
+		printf("SSE (nt) BatchRun  Add:       %.6f %c/cycle  ",
 		  adlr/(F64)bnum, bch);
 		if(sw_prf == 1) printf("[NTA prefetch]\n");
 		else printf("[T0 prefetch]\n");
-		printf("SSE (nt) BatchRun  Triad:     %.2f M%c/s  ",
+		printf("SSE (nt) BatchRun  Triad:     %.6f %c/cycle  ",
 		  trlr/(F64)bnum, bch);
 		if(sw_prf == 1) printf("[NTA prefetch]\n");
 		else printf("[T0 prefetch]\n");
-		printf("---\nSSE (nt) BatchRun  AVERAGE:   %.2f M%c/s\n\n",
+		printf("---\nSSE (nt) BatchRun  AVERAGE:   %.6f %c/cycle\n\n",
 		  (cplr + sclr + adlr + trlr)/(F64)(bnum << 2), bch);
 	    }
 	    break;

@@ -19,18 +19,17 @@
 #include <sys/time.h>
 #include "defines.h"
 
+extern UTL my_cycle();
+
 UTL intwr(UTL blksize, UTL passnum) {
     UTL blk = (blksize << 10);
     UTL b = 0;
-    UTL a, ret, start, ustart, finish, ufinish;
+    UTL a;
     UTL *mem;
-    struct timeval time;
+
+	UTL start = my_cycle();
 
     mem = (UTL *) malloc(blk);
-
-    gettimeofday(&time, NULL);
-    start  = time.tv_sec;
-    ustart = time.tv_usec;
 
     while(passnum--) {
     	for(a = 0; a < blk/sizeof(UTL); a += 64) {
@@ -53,23 +52,18 @@ UTL intwr(UTL blksize, UTL passnum) {
 	}
     }
 
-    gettimeofday(&time, NULL);
-    finish  = time.tv_sec;
-    ufinish = time.tv_usec;
+    UTL end = my_cycle();
 
-    ret = (finish - start)*1000000 + (ufinish - ustart);
-
-    free((UTL *) mem);
-
-    return(ret);
+    return end - start;
 }
 
 UTL intrd(UTL blksize, UTL passnum) {
     UTL blk = (blksize << 10);
     UTL b = 0;
-    UTL a, ret, start, ustart, finish, ufinish;
+    UTL a;
     volatile UTL *mem;
-    struct timeval time;
+
+	UTL start = my_cycle();
 
     mem = (UTL *) malloc(blk);
 
@@ -79,10 +73,6 @@ UTL intrd(UTL blksize, UTL passnum) {
 	mem[a+2] = b;
 	mem[a+3] = b;
     }
-
-    gettimeofday(&time, NULL);
-    start  = time.tv_sec;
-    ustart = time.tv_usec;
 
     while(passnum--) {
     	for(a = 0; a < blk/sizeof(UTL); a += 64) {
@@ -105,13 +95,7 @@ UTL intrd(UTL blksize, UTL passnum) {
 	}
     }
 
-    gettimeofday(&time, NULL);
-    finish  = time.tv_sec;
-    ufinish = time.tv_usec;
+    UTL end = my_cycle();
 
-    ret = (finish - start)*1000000 + (ufinish - ustart);
-
-    free((UTL *) mem);
-
-    return(ret);
+    return end - start;
 }

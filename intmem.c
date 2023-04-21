@@ -19,20 +19,19 @@
 #include <sys/time.h>
 #include "defines.h"
 
+extern UTL my_cycle();
+
 UTL intcp(UTL blksize, UTL passnum) {
     UTL blk = (blksize << 10);
-    UTL i, ret, start, ustart, finish, ufinish;
+    UTL i;
     UTL *a, *b;
-    struct timeval time;
+
+	UTL start = my_cycle();
 
     a = (UTL *) malloc(blk);
     b = (UTL *) malloc(blk);
 
     for(i = 0; i < blk/sizeof(UTL); i++) a[i] = 33;
-
-    gettimeofday(&time, NULL);
-    start  = time.tv_sec;
-    ustart = time.tv_usec;
 
     while(passnum--) {
 	for(i = 0; i < blk/sizeof(UTL); i += 32) {
@@ -55,33 +54,23 @@ UTL intcp(UTL blksize, UTL passnum) {
         }
     }
 
-    gettimeofday(&time, NULL);
-    finish  = time.tv_sec;
-    ufinish = time.tv_usec;
+    UTL end = my_cycle();
 
-    ret = (finish - start)*1000000 + (ufinish - ustart);
-
-    free((UTL *) b);
-    free((UTL *) a);
-
-    return(ret);
+    return end - start;
 }
 
 UTL intsc(UTL blksize, UTL passnum) {
     UTL blk = (blksize << 10);
     UTL m = 77;
-    UTL i, ret, start, finish, ustart, ufinish;
+    UTL i;
     UTL *a, *b;
-    struct timeval time;
+
+	UTL start = my_cycle();
 
     a = (UTL *) malloc(blk);
     b = (UTL *) malloc(blk);
 
     for(i = 0; i < blk/sizeof(UTL); i++) a[i] = 33;
-
-    gettimeofday(&time, NULL);
-    start  = time.tv_sec;
-    ustart = time.tv_usec;
 
     while(passnum--) {
 	for(i = 0; i < blk/sizeof(UTL); i += 32) {
@@ -104,23 +93,17 @@ UTL intsc(UTL blksize, UTL passnum) {
         }
     }
 
-    gettimeofday(&time, NULL);
-    finish  = time.tv_sec;
-    ufinish = time.tv_usec;
+    UTL end = my_cycle();
 
-    ret = (finish - start)*1000000 + (ufinish - ustart);
-
-    free((UTL *) b);
-    free((UTL *) a);
-
-    return(ret);
+    return end - start;
 }
 
 UTL intad(UTL blksize, UTL passnum) {
     UTL blk = (blksize << 10);
-    UTL i, ret, start, finish, ustart, ufinish;
+    UTL i;
     UTL *a, *b, *c;
-    struct timeval time;
+
+	UTL start = my_cycle();
 
     a = (UTL *) malloc(blk);
     b = (UTL *) malloc(blk);
@@ -130,10 +113,6 @@ UTL intad(UTL blksize, UTL passnum) {
     	a[i] = 33;
 	b[i] = 55;
     }
-
-    gettimeofday(&time, NULL);
-    start  = time.tv_sec;
-    ustart = time.tv_usec;
 
     while(passnum--) {
 	for(i = 0; i < blk/sizeof(UTL); i += 32) {
@@ -156,25 +135,18 @@ UTL intad(UTL blksize, UTL passnum) {
         }
     }
 
-    gettimeofday(&time, NULL);
-    finish  = time.tv_sec;
-    ufinish = time.tv_usec;
+    UTL end = my_cycle();
 
-    ret = (finish - start)*1000000 + (ufinish - ustart);
-
-    free((UTL *) c);
-    free((UTL *) b);
-    free((UTL *) a);
-    
-    return(ret);
+    return end - start;
 }
 
 UTL inttr(UTL blksize, UTL passnum) {
     UTL blk = (blksize << 10);
     UTL m = 77;
-    UTL i, ret, start, finish, ustart, ufinish;
+    UTL i;
     UTL *a, *b, *c;
-    struct timeval time;
+
+	UTL start = my_cycle();
 
     a = (UTL *) malloc(blk);
     b = (UTL *) malloc(blk);
@@ -184,10 +156,6 @@ UTL inttr(UTL blksize, UTL passnum) {
     	a[i] = 33;
 	b[i] = 55;
     }
-
-    gettimeofday(&time, NULL);
-    start  = time.tv_sec;
-    ustart = time.tv_usec;
 
     while(passnum--) {
 	for(i = 0; i < blk/sizeof(UTL); i += 32) {
@@ -210,15 +178,7 @@ UTL inttr(UTL blksize, UTL passnum) {
         }
     }
 
-    gettimeofday(&time, NULL);
-    finish  = time.tv_sec;
-    ufinish = time.tv_usec;
+    UTL end = my_cycle();
 
-    ret = (finish - start)*1000000 + (ufinish - ustart);
-
-    free((UTL *) c);
-    free((UTL *) b);
-    free((UTL *) a);
-    
-    return(ret);
+    return end - start;
 }

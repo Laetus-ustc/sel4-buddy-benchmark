@@ -19,20 +19,19 @@
 #include <sys/time.h>
 #include "defines.h"
 
+extern UTL my_cycle();
+
 UTL floatcp(UTL blksize, UTL passnum) {
     UTL blk = (blksize << 10);
-    UTL i, ret, start, ustart, finish, ufinish;
+    UTL i, ret, ustart, finish, ufinish;
     F64 *a, *b;
-    struct timeval time;
+
+	UTL start = my_cycle();
 
     a = (F64 *) malloc(blk);
     b = (F64 *) malloc(blk);
 
     for(i = 0; i < blk/sizeof(F64); i++) a[i] = PI;
-
-    gettimeofday(&time, NULL);
-    start  = time.tv_sec;
-    ustart = time.tv_usec;
 
     while(passnum--) {
 	for(i = 0; i < blk/sizeof(F64); i += 32) {
@@ -55,33 +54,23 @@ UTL floatcp(UTL blksize, UTL passnum) {
         }
     }
 
-    gettimeofday(&time, NULL);
-    finish  = time.tv_sec;
-    ufinish = time.tv_usec;
+    UTL end = my_cycle();
 
-    ret = (finish - start)*1000000 + (ufinish - ustart);
-
-    free((F64 *) b);
-    free((F64 *) a);
-
-    return(ret);
+    return end - start;
 }
 
 UTL floatsc(UTL blksize, UTL passnum) {
     UTL blk = (blksize << 10);
     F64 m = LN2;
-    UTL i, ret, start, ustart, finish, ufinish;
+    UTL i, ret, ustart, finish, ufinish;
     F64 *a, *b;
-    struct timeval time;
+
+	UTL start = my_cycle();
 
     a = (F64 *) malloc(blk);
     b = (F64 *) malloc(blk);
 
     for(i = 0; i < blk/sizeof(F64); i++) a[i] = PI;
-
-    gettimeofday(&time, NULL);
-    start  = time.tv_sec;
-    ustart = time.tv_usec;
 
     while(passnum--) {
 	for(i = 0; i < blk/sizeof(F64); i += 32) {
@@ -104,23 +93,17 @@ UTL floatsc(UTL blksize, UTL passnum) {
         }
     }
 
-    gettimeofday(&time, NULL);
-    finish  = time.tv_sec;
-    ufinish = time.tv_usec;
+    UTL end = my_cycle();
 
-    ret = (finish - start)*1000000 + (ufinish - ustart);
-
-    free((F64 *) b);
-    free((F64 *) a);
-
-    return(ret);
+    return end - start;
 }
 
 UTL floatad(UTL blksize, UTL passnum) {
     UTL blk = (blksize << 10);
-    UTL i, ret, start, ustart, finish, ufinish;
+    UTL i;
     F64 *a, *b, *c;
-    struct timeval time;
+
+	UTL start = my_cycle();
 
     a = (F64 *) malloc(blk);
     b = (F64 *) malloc(blk);
@@ -130,10 +113,6 @@ UTL floatad(UTL blksize, UTL passnum) {
 	a[i] = PI;
 	b[i] = PI;
     }
-
-    gettimeofday(&time, NULL);
-    start  = time.tv_sec;
-    ustart = time.tv_usec;
 
     while(passnum--) {
 	for(i = 0; i < blk/sizeof(F64); i += 32) {
@@ -156,25 +135,18 @@ UTL floatad(UTL blksize, UTL passnum) {
         }
     }
 
-    gettimeofday(&time, NULL);
-    finish  = time.tv_sec;
-    ufinish = time.tv_usec;
+    UTL end = my_cycle();
 
-    ret = (finish - start)*1000000 + (ufinish - ustart);
-
-    free((F64 *) c);
-    free((F64 *) b);
-    free((F64 *) a);
-
-    return(ret);
+    return end - start;
 }
 
 UTL floattr(UTL blksize, UTL passnum) {
     UTL blk = (blksize << 10);
     F64 m = LN2;
-    UTL i, ret, start, ustart, finish, ufinish;
+    UTL i;
     F64 *a, *b, *c;
-    struct timeval time;
+
+	UTL start = my_cycle();
 
     a = (F64 *) malloc(blk);
     b = (F64 *) malloc(blk);
@@ -184,10 +156,6 @@ UTL floattr(UTL blksize, UTL passnum) {
 	a[i] = PI;
 	b[i] = PI;
     }
-
-    gettimeofday(&time, NULL);
-    start  = time.tv_sec;
-    ustart = time.tv_usec;
 
     while(passnum--) {
 	for(i = 0; i < blk/sizeof(F64); i += 32) {
@@ -210,15 +178,7 @@ UTL floattr(UTL blksize, UTL passnum) {
         }
     }
 
-    gettimeofday(&time, NULL);
-    finish  = time.tv_sec;
-    ufinish = time.tv_usec;
+    UTL end = my_cycle();
 
-    ret = (finish - start)*1000000 + (ufinish - ustart);
-
-    free((F64 *) c);
-    free((F64 *) b);
-    free((F64 *) a);
-
-    return(ret);
+    return end - start;
 }

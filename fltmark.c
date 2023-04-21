@@ -19,18 +19,17 @@
 #include <sys/time.h>
 #include "defines.h"
 
+extern UTL my_cycle();
+
 UTL floatwr(UTL blksize, UTL passnum) {
     UTL blk = (blksize << 10);
     F64 b = 0.1;
-    UTL a, ret, start, ustart, finish, ufinish;
+    UTL a;
     F64 *mem;
-    struct timeval time;
+
+	UTL start = my_cycle();
 
     mem = (F64 *) malloc(blk);
-
-    gettimeofday(&time, NULL);
-    start  = time.tv_sec;
-    ustart = time.tv_usec;
 
     while(passnum--) {
 	for(a = 0; a < blk/sizeof(F64); a += 64) {
@@ -53,23 +52,18 @@ UTL floatwr(UTL blksize, UTL passnum) {
 	}
     }
 
-    gettimeofday(&time, NULL);
-    finish  = time.tv_sec;
-    ufinish = time.tv_usec;
+    UTL end = my_cycle();
 
-    ret = (finish - start)*1000000 + (ufinish - ustart);
-
-    free((UTL *) mem);
-
-    return(ret);
+    return end - start;
 }
 
 UTL floatrd(UTL blksize, UTL passnum) {
     UTL blk = (blksize << 10);
     F64 b = 0.1;
-    UTL a, ret, start, ustart, finish, ufinish;
+    UTL a;
     volatile F64 *mem;
-    struct timeval time;
+
+	UTL start = my_cycle();
 
     mem = (F64 *) malloc(blk);
 
@@ -79,10 +73,6 @@ UTL floatrd(UTL blksize, UTL passnum) {
 	mem[a+2] = b;
 	mem[a+3] = b;
     }
-
-    gettimeofday(&time, NULL);
-    start  = time.tv_sec;
-    ustart = time.tv_usec;
 
     while(passnum--) {
 	for(a = 0; a < blk/sizeof(F64); a += 64) {
@@ -105,13 +95,7 @@ UTL floatrd(UTL blksize, UTL passnum) {
 	}
     }
 
-    gettimeofday(&time, NULL);
-    finish  = time.tv_sec;
-    ufinish = time.tv_usec;
+    UTL end = my_cycle();
 
-    ret = (finish - start)*1000000 + (ufinish - ustart);
-
-    free((UTL *) mem);
-
-    return(ret);
+    return end - start;
 }
