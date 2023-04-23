@@ -1,3 +1,13 @@
+# Ramspeed for CapBuddy testbench
+This repository adapts Ramspeed tests for
+[sel4test-vbtalloc-unitest](https://github.com/ZGwtao/sel4test-vbtalloc-unitest).
+
+In order to use this repository, you need:
+1. Make sure you have been able to run sel4test-vbtalloc-unitest;
+2. Clone the repository to the `sel4test-vbtalloc-unitest/src/` directory;
+3. Now, you can add the entry function `ramspeed_entry()` in the `wrapper.c`.
+
+# Below is the README of ramspeed original version
 
 RAMspeed, a cache and memory benchmarking tool
 
